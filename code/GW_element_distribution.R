@@ -11,7 +11,7 @@ WYend <- 2015     # Ending water year of simulation
 model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
 
 model_run <- "his_v1.01"
-
+hdf_file_name <- "C2VSimFG_GW_ZBudget.hdf"
 
 #These are color-blind-friendly palettes, one with gray, and one with black for plotting.
 
@@ -43,13 +43,13 @@ library(rhdf5)
 h5closeAll()
 
 # hdf file name
-hdf_file=paste0(model_dir,"C2VSimFG_GW_ZBudget.hdf")
+hdf_file=paste0(model_dir,hdf_file_name)
 
 hdf_list <- h5ls(hdf_file)  #List the content of an HDF5 file
 
 hdf = H5Fopen(hdf_file)  #Open an object in an HDF5 file
 
-#hydroTSM: Sequence of monthly dates between "1961-01-01" and "1961-12-31" ##
+# hydroTSM: Sequence of monthly dates between "1961-01-01" and "1961-12-31" ##
 
 time_m <- mip(paste0(WYstart-1,"-10-01"), paste0(WYend,"-09-30"))
 
@@ -77,7 +77,6 @@ a1
  k=9
  k=17
  k=22
- #k= 9 
    
  {
  column_loc <- h5read(hdf, name =paste0("Attributes/","cLocationNames")) 
@@ -122,6 +121,7 @@ a1
 
 
 # Loop over all elements
+ 
  sgn=1.0
  k1=k+2
 if(k==1) {
@@ -150,26 +150,19 @@ for (m in 1:32537)
  
 
 
-  {  
-    
+  # time series plot    
     
     {  
       j0=j0+1  
-      plot(time_m, el_dx[j,], pch=16, col='#FF5034',xlab="Month",ylab=column_index[k], main=paste0("Figure ",j0," ", column_index[k], "  Element ID: ", j))
+      plot(time_m, el_dx[j,], pch=16, col=cbPalette[2],xlab="Month",ylab=column_index[k], main=paste0("Figure ",j0," ", column_index[k], "  Element ID: ", j))
       #   
       lines(time_m, el_dx[j,])
     }
-    #add a legend
-    #legend(x="topleft", legend=c(paste0("Ag_Area ", name1[i])),
-    #       pch=16, col=c('#FF5034'), title="Legend")
-    
-    #write.csv(subregion,file=paste0(name1[i],col_nam[j],".csv"))
- }
+   
+ 
   }
-#dev.off()
 
-
-# mapview visualization
+# map view visualization
 
 
 shp_file1 <- "C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/C2VSimFG_StreamReaches.shp"
@@ -197,30 +190,28 @@ data1 <- as.data.frame(rowSums(el_dx))
 
 nyears <- (WYend - WYstart+1)
 
-nc_element2 <- nc_element %>% mutate(z_ft=data1$`rowSums(el_dx)`/nyears)  #/nc_element$Acres)
+nc_element2 <- nc_element %>% mutate(z_af=data1$`rowSums(el_dx)`/nyears)  #/nc_element$Acres)
 
-write.csv(cbind(nc_element2$ElementID, nc_element2$z_ft),file=paste0( col_nam[k],".csv"))
+write.csv(cbind(nc_element2$ElementID, nc_element2$z_af),file=paste0(getwd(),"/output/" ,column_index[k],".csv"))
 
 
 #x1 <- data1 %>% summarise(mean)
 # water year, oct to sep
 #nc_element2$Acres <- data1$`rowSums(element_value)`/94.0/1000.0
-x1 <- summary(nc_element2$z_ft)
+x1 <- summary(nc_element2$z_af)
 x1
 title=column_index[k]
 #title="small_watersheds_inflow"
-p1 <- mapview(nc_element2,zcol="z_ft", color = "white", color.region=cbPalette, 
+p1 <- mapview(nc_element2,zcol="z_af", color = "white", color.region=cbPalette, 
               alpha.regions =0.5,
-              at = seq(0.0*x1[1]+0.05, x1[6]*1.2, (x1[6]-x1[1])/20),
-
-              
-              layer.name=paste0("Map for ",model_run," ",title," (ft per year)"))
+              at = seq(0.0*x1[1]+0.05, x1[6]*1.2, (x1[6]-x1[1])/10),
+              layer.name=paste0("Map for ",model_run,"_",title))
 
 p2 <- p1 + mapview(nc_c2v, zol="Name")
 p2
 ## create standalone .html
 
-mapshot(p2, url = paste0(getwd(),"/Map1.htm"))
+mapshot(p2, url = paste0(getwd(),"/output/Map1.htm"))
 
 #mapshot(p2, url = paste0(getwd(), "/map2",model_run,"_deep_perc",".htm"))
  
