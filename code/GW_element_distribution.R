@@ -1,8 +1,17 @@
 #
-# Read Groundwater zonal budget HDF file directly for element level stattitics and visualization 
+# Read Groundwater zonal budget HDF file directly for element level statistics and visualization 
 #
 #
 # User Inputs -------------------------------------------------------------
+
+# Temporal Information
+
+WYstart <- 1974    # Beginning water year of simulation
+WYend <- 2015     # Ending water year of simulation
+model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
+
+model_run <- "his_v1.01"
+
 
 #These are color-blind-friendly palettes, one with gray, and one with black for plotting.
 
@@ -12,13 +21,6 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 # The palette with black:
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-# Temporal Information
-
-WYstart <- 1974    # Beginning water year of simulation
-WYend <- 2015     # Ending water year of simulation
-model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
-
-model_run <- "his_v1.01"
 #
 # Script Initialization ---------------------------------------------------
 
