@@ -5,13 +5,19 @@
 # User Inputs -------------------------------------------------------------
 
 # Temporal Information
-
+{
 WYstart <- 1974    # Beginning water year of simulation
 WYend <- 2015     # Ending water year of simulation
-model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
 
-model_run <- "his_v1.01"
-hdf_file_name <- "C2VSimFG_GW_ZBudget.hdf"
+#model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
+model_dir <- "C:/Users/ghuang/Documents/GitHub/Postprocessing-element-distribution/data/"
+
+#model_run <- "his_v1.01"
+
+model_run <- "CG_v1.0"
+
+#hdf_file_name <- "C2VSimFG_GW_ZBudget.hdf"
+hdf_file_name <- "C2VSimCG_GW_ZBudget.hdf"
 
 #These are color-blind-friendly palettes, one with gray, and one with black for plotting.
 
@@ -20,7 +26,7 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 
 # The palette with black:
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+}
 #
 # Script Initialization ---------------------------------------------------
 
@@ -43,7 +49,7 @@ library(rhdf5)
 h5closeAll()
 
 # hdf file name
-hdf_file=paste0(model_dir,hdf_file_name)
+hdf_file <- paste0(model_dir,hdf_file_name)
 
 hdf_list <- h5ls(hdf_file)  #List the content of an HDF5 file
 
@@ -107,7 +113,7 @@ a1
  
  # Loop over all elements
  
- for (m in 1:32537)
+ for (m in 1:m2)
 {
  
   {
@@ -128,7 +134,7 @@ if(k==1) {
   k1=2
   sgn=-1.0}
   
-for (m in 1:32537)
+for (m in 1:m2)
 {
   #  for(k in 1:26)
   {
@@ -147,7 +153,8 @@ for (m in 1:32537)
  j=9024   #sub05
  j=11470  #sub06
  j0=0
- 
+ # CG
+ j=876
 
 
   # time series plot    
@@ -167,19 +174,20 @@ for (m in 1:32537)
 
 shp_file1 <- "C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/C2VSimFG_StreamReaches.shp"
 
-shp_file2 <- "C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/C2VSim_Stream_Nodes.shp"
 
-shp_element <- "C2VSimFG_Elements.shp"
-shp_Node <- "C2VSimFG_Nodes.shp"
+#shp_element <- "C2VSimFG_Elements.shp"
+shp_element <- "/data/GIS/C2VSimCG_Elements.shp"
 
-dsn <- paste0("C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/", shp_element)
-dsn_node <- paste0("C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/", shp_Node)
+
+
+dsn <- paste0(getwd(), shp_element)
+
+
 
 nc_c2v <- st_read(shp_file1, quiet = TRUE)
-nc_streamnodes <- st_read(shp_file2, quiet = TRUE)
 nc_element <- st_read(dsn, quiet = TRUE)
 
-nc_node <- st_read(dsn_node, quiet = FALSE)
+
 
 {
 data1 <- as.data.frame(rowSums(el_dx))
@@ -190,7 +198,7 @@ data1 <- as.data.frame(rowSums(el_dx))
 
 nyears <- (WYend - WYstart+1)
 
-nc_element2 <- nc_element %>% mutate(z_af=data1$`rowSums(el_dx)`/nyears)  #/nc_element$Acres)
+nc_element2 <- nc_element %>% mutate(z_af=data1$`rowSums(el_dx)`/nyears)
 
 write.csv(cbind(nc_element2$ElementID, nc_element2$z_af),file=paste0(getwd(),"/output/" ,column_index[k],".csv"))
 
@@ -201,7 +209,7 @@ write.csv(cbind(nc_element2$ElementID, nc_element2$z_af),file=paste0(getwd(),"/o
 x1 <- summary(nc_element2$z_af)
 x1
 title=column_index[k]
-#title="small_watersheds_inflow"
+
 p1 <- mapview(nc_element2,zcol="z_af", color = "white", color.region=cbPalette, 
               alpha.regions =0.5,
               at = seq(0.0*x1[1]+0.05, x1[6]*1.2, (x1[6]-x1[1])/10),
@@ -211,11 +219,8 @@ p2 <- p1 + mapview(nc_c2v, zol="Name")
 p2
 ## create standalone .html
 
-mapshot(p2, url = paste0(getwd(),"/output/Map1.htm"))
+mapshot(p2, url = paste0(getwd(),"/output/CG_Map1.htm"))
 
-#mapshot(p2, url = paste0(getwd(), "/map2",model_run,"_deep_perc",".htm"))
- 
-#plot(nc_element2)
 
 }
 
