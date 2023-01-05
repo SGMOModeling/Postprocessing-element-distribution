@@ -175,7 +175,7 @@ write.csv(y,file=paste0(getwd(),"/output/",model_run,"_'",column_index[k],".csv"
 x1 <- summary(nc_element2$z_af)
 x1
 title=column_index[k]
-if(max(x1) != 0)
+if(max(abs(x1)) > 0)
 {  
 p1 <- mapview(nc_element2,zcol="z_af", color = "white", color.region=cbPalette, 
               alpha.regions =0.5,
