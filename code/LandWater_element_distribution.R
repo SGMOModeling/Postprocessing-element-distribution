@@ -1,6 +1,7 @@
+# General Comments --------------------------------------------------------
 #
 # Read Land and water zonal budget HDF file directly for element level statistics and visualization
-#
+# The script is intended for C2VSimFG QA/QC purpose.  
 #
 # User Inputs -------------------------------------------------------------
 
@@ -161,13 +162,13 @@ for (k in 1:39)
         p2
         ## create standalone .html
 
-        mapshot(p2, url = paste0(getwd(), "/output/Map_", trimws(column_index[k]),"_Layer",layer_id ,".htm"))
+        mapshot(p2, url = paste0(getwd(), "//output//land_water//Map_", trimws(column_index[k]),"_Layer",layer_id ,".htm"))
         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)
         colnames(y) <- c("Element ID", paste0(b1, "(AF/year)"))
 
-        write.csv(y, file = paste0(getwd(), "/output/", model_run, "_'", trimws(column_index[k]),"_Layer",layer_id, ".csv"))
+        write.csv(y, file = paste0(getwd(), "/output/land_water/", model_run, "_'", trimws(column_index[k]),"_Layer",layer_id, ".csv"))
       }
     }
   }
