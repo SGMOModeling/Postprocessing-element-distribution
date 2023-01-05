@@ -126,9 +126,9 @@ for (k in 1:26)
     el_dx <- as.matrix(array(1:m2, c(m2, NTime))) * 0.0 #
 
     # Loop over all elements 
-    if(m1 == 0)  m1=1
+    if(m1 == 0)  m1=1  # no non-zero values
     
-    for (m in 1:m1)
+    for (m in 1:m2)
     {{ if (el_index[m, k] > 0.0) {
       for (j in 1:NTime) {
         el_dx[m, j] <- element_value[el_index[m, k], j]
