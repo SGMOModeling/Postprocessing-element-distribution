@@ -4,8 +4,9 @@
 #
 # User Inputs -------------------------------------------------------------
 
-# Temporal Information
+
 {
+  # Temporal Information
   WYstart <- 1974 # Beginning water year of simulation
   WYend <- 2015 # Ending water year of simulation
 
@@ -61,7 +62,7 @@ time_m <- mip(paste0(WYstart - 1, "-10-01"), paste0(WYend, "-09-30"))
 
 name_list <- hdf_list$name
 
-# from hdf file, "Layer_1"  budget columns
+# from hdf file, "Layer_1"  check budget columns
 
 col_nam <- name_list[23:51]
 
@@ -74,18 +75,10 @@ a1
 #
 # all element values
 #
-
-
 column_index <- h5read(hdf, name = paste0("Attributes/", "FullDataNames"))
 column_index
 
 # There are 26 zonal budget columns excluding face flow and storage columns
-
-k <- 9
-k <- 17
-# For groundwater pumping in C2VSimFG, 4 layers
-k <- 22 # element pumping
-k <- 24 # well pumping
 
 column_loc <- h5read(hdf, name = paste0("Attributes/", "cLocationNames"))
 
@@ -132,7 +125,7 @@ for (k in 1:26)
     # element values Initialization ---------------------------------------------------
     el_dx <- as.matrix(array(1:m2, c(m2, NTime))) * 0.0 #
 
-    # Loop over all elements for the first term: /Layer_1/Pumping by Element_Outflow (-)
+    # Loop over all elements 
     if(m1 == 0)  m1=1
     
     for (m in 1:m1)
@@ -141,13 +134,6 @@ for (k in 1:26)
         el_dx[m, j] <- element_value[el_index[m, k], j]
       }
     } }}
-
-
-
-
-
-
-
 
     {
       data1 <- as.data.frame(rowSums(el_dx))
@@ -165,7 +151,7 @@ for (k in 1:26)
       title <- column_index[k]
       if (max(abs(x1)) > 0) {
         p1 <- mapview(nc_element2,
-          zcol = "z_af", color = "white", color.region = cbPalette,
+          zcol = "z_af", color = "white", color.region = cbPalette[3],
           alpha.regions = 0.5,
           at = seq(0.0 * x1[1] + 0.05, x1[6] * 1.2, (x1[6] - x1[1]) / 10),
           layer.name = paste0("Map for ", model_run, "_", title)
