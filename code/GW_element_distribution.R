@@ -9,15 +9,15 @@
 WYstart <- 1974    # Beginning water year of simulation
 WYend <- 2015     # Ending water year of simulation
 
-#model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
-model_dir <- "C:/Users/ghuang/Documents/GitHub/Postprocessing-element-distribution/data/"
+model_dir <- "C:/Users/ghuang/Documents/c2vsimfg_version1.01/Results/"
+#model_dir <- "C:/Users/ghuang/Documents/GitHub/Postprocessing-element-distribution/data/"
 
-#model_run <- "his_v1.01"
+model_run <- "his_v1.01"
 
-model_run <- "CG_v1.0"
+#model_run <- "CG_v1.0"
 
-#hdf_file_name <- "C2VSimFG_GW_ZBudget.hdf"
-hdf_file_name <- "C2VSimCG_GW_ZBudget.hdf"
+hdf_file_name <- "C2VSimFG_GW_ZBudget.hdf"
+#hdf_file_name <- "C2VSimCG_GW_ZBudget.hdf"
 
 #These are color-blind-friendly palettes, one with gray, and one with black for plotting.
 
@@ -40,8 +40,8 @@ library(mapview)
 
 #  The package rhdf5 must be installed.
 
-#install.packages("BiocManager")
-#BiocManager::install("rhdf5")
+# install.packages("BiocManager")
+# BiocManager::install("rhdf5")
 
 library(rhdf5)
 
@@ -67,7 +67,6 @@ col_nam <- name_list[23:51]
 
 # check file attributes
 
-h5listIdentifier()
 h5validObjects()
 a1 <- h5readAttributes(hdf,hdf_list$name[1])
 a1
@@ -80,15 +79,23 @@ a1
  column_index <- h5read(hdf, name =paste0("Attributes/","FullDataNames"))
  column_index 
  
+ # There are 26 zonal budget columns excluding face flow and storage columns
+ 
  k=9
  k=17
- k=22
-   
- {
- column_loc <- h5read(hdf, name =paste0("Attributes/","cLocationNames")) 
+ # For groundwater pumping in C2VSimFG, 4 layers
+ k=22 # element pumping
+k=24  # well pumping   
  
- b1 <- trimws(column_loc[k])
- b2 <- trimws(column_loc[k+2])
+ column_loc <- h5read(hdf, name =paste0("Attributes/","cLocationNames")) 
+
+for(k in 1:26) 
+{
+# Layer 1
+layer_id = 1
+  
+ b1 <- trimws(column_loc[k + (layer_id -1)*26])
+# b2 <- trimws(column_loc[k+2 + (layer_id -1)*26])
 
  # for GW storage
   if(k==1) b2 <-  trimws(column_loc[k+1])
@@ -100,10 +107,10 @@ a1
  
  
  
- el_index <- h5read(hdf, name =paste0("Attributes/","Layer1_ElemDataColumns"))
+ el_index <- h5read(hdf, name =paste0("Attributes/","Layer",layer_id,"_ElemDataColumns"))
  
  m1 <- length(element_value[,k])
- m2 <- length(el_index[,k-1])
+ m2 <- length(el_index[,k])
  
  # total time steps number
  NTime <- (WYend - WYstart+1)*12
@@ -111,9 +118,9 @@ a1
  # element values Initialization ---------------------------------------------------
  el_dx <-as.matrix(array(1:m2,c(m2,NTime)))*0.0  # 
  
- # Loop over all elements
+ # Loop over all elements for the first term: /Layer_1/Pumping by Element_Outflow (-)    
  
- for (m in 1:m2)
+ for (m in 1:m1)
 {
  
   {
@@ -126,65 +133,25 @@ a1
 }
 
 
-# Loop over all elements
- 
- sgn=1.0
- k1=k+2
-if(k==1) {
-  k1=2
-  sgn=-1.0}
-  
-for (m in 1:m2)
-{
-  #  for(k in 1:26)
-  {
-    if (el_index[m, k1] > 0.0) {
-      for (j in 1:504) {
-        el_dx[m, j] <- el_dx[m, j] + element_value1[el_index[m, k1], j]*sgn
-      }
-    }
-  }
-}
- 
- # spot check single element data
- 
- j=14860  #Sub09
- j=4876   #Sub05
- j=9024   #sub05
- j=11470  #sub06
- j0=0
- # CG
- j=876
 
 
-  # time series plot    
-    
-    {  
-      j0=j0+1  
-      plot(time_m, el_dx[j,], pch=16, col=cbPalette[2],xlab="Month",ylab=column_index[k], main=paste0("Figure ",j0," ", column_index[k], "  Element ID: ", j))
-      #   
-      lines(time_m, el_dx[j,])
-    }
-   
- 
-  }
 
 # map view visualization
 
 
-shp_file1 <- "C:/Users/ghuang/Documents/ArcGIS/C2VSimFG-V1_0_GIS/C2VSimFG-V1_0_GIS/Shapefiles/C2VSimFG_StreamReaches.shp"
+shp_file1 <- "/data/GIS/C2VSimFG_StreamReaches.shp"
 
 
-#shp_element <- "C2VSimFG_Elements.shp"
-shp_element <- "/data/GIS/C2VSimCG_Elements.shp"
+shp_element <- "/data/GIS/C2VSimFG_Elements.shp"
+#shp_element <- "/data/GIS/C2VSimCG_Elements.shp"
 
 
 
 dsn <- paste0(getwd(), shp_element)
+dsn_streaM <- paste0(getwd(), shp_file1)
 
 
-
-nc_c2v <- st_read(shp_file1, quiet = TRUE)
+nc_c2v <- st_read(dsn_streaM, quiet = TRUE)
 nc_element <- st_read(dsn, quiet = TRUE)
 
 
@@ -192,24 +159,24 @@ nc_element <- st_read(dsn, quiet = TRUE)
 {
 data1 <- as.data.frame(rowSums(el_dx))
 
-
-#value1 <-   data1$`rowSums(element_value)`/94.0/nc_element$Acres
-#initializing 
-
 nyears <- (WYend - WYstart+1)
 
 nc_element2 <- nc_element %>% mutate(z_af=data1$`rowSums(el_dx)`/nyears)
 
-write.csv(cbind(nc_element2$ElementID, nc_element2$z_af),file=paste0(getwd(),"/output/" ,column_index[k],".csv"))
+# for csv ouput
 
+y <- cbind(c(1:m2), nc_element2$z_af)
+colnames(y) <- c("Element ID", paste0(b1,"(AF/year)"))
 
-#x1 <- data1 %>% summarise(mean)
-# water year, oct to sep
-#nc_element2$Acres <- data1$`rowSums(element_value)`/94.0/1000.0
+write.csv(y,file=paste0(getwd(),"/output/",model_run,"_'",column_index[k],".csv"))
+
+# Mapview visualization
+
 x1 <- summary(nc_element2$z_af)
 x1
 title=column_index[k]
-
+if(max(x1) != 0)
+{  
 p1 <- mapview(nc_element2,zcol="z_af", color = "white", color.region=cbPalette, 
               alpha.regions =0.5,
               at = seq(0.0*x1[1]+0.05, x1[6]*1.2, (x1[6]-x1[1])/10),
@@ -219,8 +186,9 @@ p2 <- p1 + mapview(nc_c2v, zol="Name")
 p2
 ## create standalone .html
 
-mapshot(p2, url = paste0(getwd(),"/output/CG_Map1.htm"))
-
-
+mapshot(p2, url = paste0(getwd(),"/output/Map_", trimws(column_index[k]),".htm"))
 }
 
+}
+}
+ 
