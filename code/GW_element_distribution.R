@@ -98,7 +98,7 @@ dsn <- paste0(getwd(), shp_element)
 dsn_streaM <- paste0(getwd(), shp_file1)
 
 
-nc_c2v <- st_read(dsn_streaM, quiet = TRUE)
+nc_streams <- st_read(dsn_streaM, quiet = TRUE)
 nc_element <- st_read(dsn, quiet = TRUE)
 
 #  Loop over all 4 layers and 26 water budget columns  
@@ -150,7 +150,7 @@ for (k in 1:26)
       x1 <- summary(nc_element2$z_af)
       x1
       title <- column_index[k]
-      if (max(abs(x1)) > 0) {
+      if (max(abs(x1)) > 0.01) {
         p1 <- mapview(nc_element2,
           zcol = "z_af", color = "white", color.region = cbPalette[3],
           alpha.regions = 0.5,
@@ -158,11 +158,11 @@ for (k in 1:26)
           layer.name = paste0("Map for ", model_run, "_", title)
         )
 
-        p2 <- p1 + mapview(nc_c2v, zol = "Name")
+        p2 <- p1 + mapview(nc_streams, zol = "Name")
         p2
         ## create standalone .html
 
-        mapshot(p2, url = paste0(getwd(), "//output//groundwater//Map_", trimws(column_index[k]),"_Layer",layer_id ,".htm"))
+        mapshot(p2, url = paste0(getwd(), "//output//groundwater//Map_", k,"_Layer",layer_id ,".htm"))
         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)
@@ -173,3 +173,4 @@ for (k in 1:26)
     }
   }
 }
+write.csv(column_index, file = paste0(getwd(), "/output/groundwater/", model_run, "_map_list",".csv"))

@@ -1,7 +1,7 @@
 # General Comments --------------------------------------------------------
 #
 # Read Land and water zonal budget HDF file directly for element level statistics and visualization
-# The script is intended for C2VSimFG QA/QC purpose.  
+# The script is intended for C2VSimFG QA/QC purpose.
 #
 # User Inputs -------------------------------------------------------------
 
@@ -79,7 +79,7 @@ a1
 column_index <- h5read(hdf, name = paste0("Attributes/", "FullDataNames"))
 column_index
 
-# There are 39 zonal budget columns 
+# There are 39 zonal budget columns
 
 column_loc <- h5read(hdf, name = paste0("Attributes/", "cLocationNames"))
 
@@ -101,20 +101,20 @@ dsn_streaM <- paste0(getwd(), shp_file1)
 nc_c2v <- st_read(dsn_streaM, quiet = TRUE)
 nc_element <- st_read(dsn, quiet = TRUE)
 
-#  Loop over all 4 layers and 26 water budget columns  
+#  Loop over all 4 layers and 26 water budget columns
 
 for (k in 1:39)
 {
   # Layer 1
-  layer_id = 1
+  layer_id <- 1
   for (layer_id in 1:1)
   {
     b1 <- trimws(column_loc[k + (layer_id - 1) * 39])
-    
+
     # from ft3 to acre-ft
 
     element_value <- h5read(hdf, name = b1) / 43560.0 # compressed storage in different lengths
-   
+
     el_index <- h5read(hdf, name = paste0("Attributes/", "Layer", layer_id, "_ElemDataColumns"))
 
     m1 <- length(element_value[, k])
@@ -126,9 +126,9 @@ for (k in 1:39)
     # element values Initialization ---------------------------------------------------
     el_dx <- as.matrix(array(1:m2, c(m2, NTime))) * 0.0 #
 
-    # Loop over all elements 
-    if(m1 == 0)  m1=1  # no non-zero values
-    
+    # Loop over all elements
+    if (m1 == 0) m1 <- 1 # no non-zero values
+
     for (m in 1:m2)
     {{ if (el_index[m, k] > 0.0) {
       for (j in 1:NTime) {
@@ -150,7 +150,7 @@ for (k in 1:39)
       x1 <- summary(nc_element2$z_af)
       x1
       title <- column_index[k]
-      if (max(abs(x1)) > 0) {
+      if (max(abs(x1)) > 0.001) {
         p1 <- mapview(nc_element2,
           zcol = "z_af", color = "white", color.region = cbPalette[3],
           alpha.regions = 0.5,
@@ -162,14 +162,15 @@ for (k in 1:39)
         p2
         ## create standalone .html
 
-        mapshot(p2, url = paste0(getwd(), "//output//land_water//Map_", trimws(column_index[k]),"_Layer",layer_id ,".htm"))
+        mapshot(p2, url = paste0(getwd(), "//output//land_water//Map_", k, ".htm"))
         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)
         colnames(y) <- c("Element ID", paste0(b1, "(AF/year)"))
 
-        write.csv(y, file = paste0(getwd(), "/output/land_water/", model_run, "_'", trimws(column_index[k]),"_Layer",layer_id, ".csv"))
+        write.csv(y, file = paste0(getwd(), "/output/land_water/", model_run, "_'", trimws(column_index[k]), ".csv"))
       }
     }
   }
 }
+write.csv(column_index, file = paste0(getwd(), "/output/land_water/", model_run, "_map_list", ".csv"))
