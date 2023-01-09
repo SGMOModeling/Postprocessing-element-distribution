@@ -163,6 +163,11 @@ for (k in 1:26)
         ## create standalone .html
 
         mapshot(p2, url = paste0(getwd(), "//output//groundwater//Map_", k,"_Layer",layer_id ,".htm"))
+        
+        #  rename map files for better read
+        from_name <- paste0(getwd(), "//output//groundwater//Map_", k,"_Layer",layer_id ,".htm")  
+        to_name <- paste0(getwd(), "/output/groundwater/", model_run, "_'", trimws(column_index[k]),"_Layer",layer_id, ".htm")
+        file.rename(from_name, to_name)
         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)
@@ -174,3 +179,5 @@ for (k in 1:26)
   }
 }
 write.csv(column_index, file = paste0(getwd(), "/output/groundwater/", model_run, "_map_list",".csv"))
+
+

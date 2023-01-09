@@ -163,6 +163,12 @@ for (k in 1:83)
         ## create standalone .html
 
         mapshot(p2, url = paste0(getwd(), "//output//rootzone//Map_", k,".htm"))
+        
+        #  rename map files for better read
+        from_name <- paste0(getwd(), "//output//rootzone//Map_", k,".htm")  
+        to_name <- paste0(getwd(), "/output/rootzone/", model_run, "_'", trimws(column_index[k]),".htm")
+        file.rename(from_name, to_name)
+        
         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)

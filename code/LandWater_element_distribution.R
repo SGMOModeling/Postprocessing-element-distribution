@@ -163,7 +163,13 @@ for (k in 1:39)
         ## create standalone .html
 
         mapshot(p2, url = paste0(getwd(), "//output//land_water//Map_", k, ".htm"))
-        # for csv ouput
+        
+        #  rename map files for better read
+        from_name <- paste0(getwd(), "//output//land_water//Map_", k,".htm")  
+        to_name <- paste0(getwd(), "/output/land_water/", model_run, "_'", trimws(column_index[k]),".htm")
+        file.rename(from_name, to_name)
+        
+         # for csv ouput
 
         y <- cbind(c(1:m2), nc_element2$z_af)
         colnames(y) <- c("Element ID", paste0(b1, "(AF/year)"))
